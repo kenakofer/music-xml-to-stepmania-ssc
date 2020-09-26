@@ -34,7 +34,7 @@ def doubleLength(stream):
         all_doubled.append(doubled_part)
     return music21.stream.Stream(all_doubled)
 
-c = music21.converter.parse('https://hymnal.gc.my/hymns/H026_Holy_Spirit,_come_with_power/H026_Holy_Spirit,_come_with_power.xml')
+c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
 parts = c.parts
 all_split = splitPart(parts[0]) + splitPart(parts[1])
 all_expanded = expandAllRepeats(all_split)
@@ -43,7 +43,7 @@ all_doubled = doubleLength(all_expanded)
 #all_doubled.show()
 
 def fractionalOffset(note):
-    return n.offset - int(n.offset)
+    return note.offset - int(note.offset)
 
 def lcdOffset(notes):
     offsets_in_192nds = [round(fractionalOffset(n)*192) for n in notes]
@@ -96,11 +96,8 @@ def getPartBpmString(part):
     else:
         return "0.0=120.0"
 
+print(getPartTimeSigString(all_doubled[0]))
 
+print(getPartBpmString(all_doubled[0]))
+print(getPartStepsString(all_doubled[0]))
 
-
-
-
-
-#Turn the end bars into repeat bars
-#for bar in all_split.recurse().getElementsByClass('Repeat'):
