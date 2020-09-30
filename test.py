@@ -95,12 +95,10 @@ def getPartBpmString(part):
 c = music21.converter.parse('https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml')
 parts = c.parts
 all_split = splitPart(parts[0]) + splitPart(parts[1])
-all_expanded = expandAllRepeats(all_split)
-all_doubled = doubleLength(all_expanded)
+#all_expanded = expandAllRepeats(all_split)
+#all_doubled = doubleLength(all_expanded)
 
-print(getPartTimeSigString(all_doubled[0]))
-
-print(getPartBpmString(all_doubled[0]))
-
-print(getPartStepsString(all_doubled[0]))
+print(getPartTimeSigString(all_split[0]))
+print(getPartBpmString(all_split[0]))
+print(getPartStepsString(all_split[0]))
 
