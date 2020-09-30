@@ -34,14 +34,6 @@ def doubleLength(stream):
         all_doubled.append(doubled_part)
     return music21.stream.Stream(all_doubled)
 
-c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
-parts = c.parts
-all_split = splitPart(parts[0]) + splitPart(parts[1])
-all_expanded = expandAllRepeats(all_split)
-all_doubled = doubleLength(all_expanded)
-
-#all_doubled.show()
-
 def fractionalOffset(note):
     return note.offset - int(note.offset)
 
@@ -60,12 +52,15 @@ def getStepArrow(note, key):
     return (key.getScale().getTonic().pitchClass - note.pitch.pitchClass) % 4
 
 def getMeasureSteps(measure):
-    key = measure.getKeySignatures().keySignature
+    key = measure.getKeySignatures()[0]
     denominator = lcdOffset(measure.notes)
-    rowsCount = round(measure.duration.quarterLength * denominator)
+    # Stepmania can't handle anything but measures of 4 :(
+    # rowsCount = round(measure.duration.quarterLength * denominator)
+    rowsCount = round(4 * denominator)
     rows = [['0', '0', '0', '0'] for i in range(rowsCount)]
     for note in measure.notes:
         which_row = round(note.offset * denominator)
+        print(which_row)
         which_arrow = getStepArrow(note, key)
         rows[which_row][which_arrow] = '1'
     return f"// Measure {measure.number}\n" + \
@@ -73,7 +68,8 @@ def getMeasureSteps(measure):
 
 def getPartStepsString(part):
     string = ""
-    for measure in part.recurse().getElementsByClass('Measure'):
+    part_in_four = part.makeMeasures(meterStream=music21.meter.TimeSignature('4/4'))
+    for measure in part_in_four.recurse().getElementsByClass('Measure'):
         string += getMeasureSteps(measure)
     return string
 
@@ -96,8 +92,15 @@ def getPartBpmString(part):
     else:
         return "0.0=120.0"
 
+c = music21.converter.parse('https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml')
+parts = c.parts
+all_split = splitPart(parts[0]) + splitPart(parts[1])
+all_expanded = expandAllRepeats(all_split)
+all_doubled = doubleLength(all_expanded)
+
 print(getPartTimeSigString(all_doubled[0]))
 
 print(getPartBpmString(all_doubled[0]))
+
 print(getPartStepsString(all_doubled[0]))
 
