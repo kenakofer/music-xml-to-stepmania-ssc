@@ -49,7 +49,9 @@ def lcdOffset(notes):
 def getStepArrow(note, key):
     if note.isChord:
         note = note.notes[0]
-    return (key.getScale().getTonic().pitchClass - note.pitch.pitchClass) % 4
+    scale_index = key.getScale().getTonic().pitchClass - note.pitch.pitchClass
+    ##      do di re ri mi fa fi so si la li ti
+    return [0, 1, 2, 1, 3, 0, 1, 2, 0, 3,  2, 1][scale_index]
 
 def getMeasureSteps(measure):
     key = measure.getKeySignatures()[0]
@@ -60,11 +62,21 @@ def getMeasureSteps(measure):
     rows = [['0', '0', '0', '0'] for i in range(rowsCount)]
     for note in measure.notes:
         which_row = round(note.offset * denominator)
-        print(which_row)
         which_arrow = getStepArrow(note, key)
         rows[which_row][which_arrow] = '1'
     return f"// Measure {measure.number}\n" + \
         "\n".join(["".join(row) for row in rows]) + '\n, '
+
+def joinStepStrings(string1, string2):
+    new_string = ""
+    for c1, c2 in zip(string1, string2):
+        if "2" in [c1, c2]:
+            new_string += "2"
+        elif "1" in [c1, c2]:
+            new_string += "1"
+        else:
+            new_string += c1
+    return new_string
 
 def getPartStepsString(part):
     string = ""
@@ -100,5 +112,10 @@ all_split = splitPart(parts[0]) + splitPart(parts[1])
 
 print(getPartTimeSigString(all_split[0]))
 print(getPartBpmString(all_split[0]))
-print(getPartStepsString(all_split[0]))
+
+step0 = getPartStepsString(all_split[0])
+step1 = getPartStepsString(all_split[1])
+joined = joinStepStrings(step0, step1)
+print(joined)
+
 
