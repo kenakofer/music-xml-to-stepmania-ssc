@@ -193,6 +193,26 @@ def getBeatLength(item):
         return 1.5
     return 1
 
+def getPartTime(part):
+    beat_length = getBeatLength(part)
+    last_measure = part.recurse().getElementsByClass('Measure')[-1]
+    total_offset = last_measure.offset + last_measure.duration.quarterLength
+    accumulated_time = 0.0
+    previous_offset = 0
+    for mark in part.recurse().getElementsByClass('MetronomeMark'):
+        offset = mark.activeSite.offset + mark.offset
+        accumulated_time += (offset - previous_offset) * (60 / mark.getQuarterBPM()) / beat_length
+        previous_offset = offset
+    accumulated_time += (total_offset - previous_offset) * (60 / mark.getQuarterBPM()) / beat_length
+    return accumulated_time
+
+def estimateDifficultyMeter(rows_string, part):
+    time = getPartTime(part)
+    taps = rows_string.count("1")
+    holds = rows_string.count("2")
+    total_moves = taps + holds * 2
+    moves_per_second = total_moves / time
+    return round(moves_per_second * 2 - 1)
 
 def loadXml(path):
     return music21.converter.parse(path)

@@ -1,4 +1,3 @@
-#VERSION:0.83;
 #TITLE:$title;
 #SUBTITLE:$subtitle;
 #ARTIST:$artist;
@@ -47,7 +46,7 @@
 #RADARVALUES:;
 #CREDIT:;
 #NOTES:$easy_notes;
-#
+
 //---------------dance-single Medium-----------------
 #NOTEDATA:;
 #CHARTNAME:;

@@ -17,8 +17,10 @@ class SccFile:
         rows_per_beat = getRowsPerBeat(all_split, beat_length)
 
         easy_notes = rowsToString(getPartRowsWithHolds(all_split[0], rows_per_beat, beat_length = beat_length), rows_per_beat)
+        easy_meter = estimateDifficultyMeter(easy_notes, parts[0])
 
         medium_notes = rowsToString(getPartRowsWithHolds(all_split[:2], rows_per_beat, beat_length = beat_length), rows_per_beat)
+        medium_meter = estimateDifficultyMeter(medium_notes, parts[0])
 
         default_options = {
             'title': score.recurse().getElementsByClass('TextBox')[0].content,
@@ -28,9 +30,9 @@ class SccFile:
             'offset': '-0.1',
             'bpms': getPartBpmString(all_split[0], beat_length = beat_length),
             'scroll_speed': '1.0',
-            'easy_meter': '2',
+            'easy_meter': easy_meter,
             'easy_notes': easy_notes,
-            'medium_meter': '5',
+            'medium_meter': medium_meter,
             'medium_notes': medium_notes,
         }
 
@@ -46,3 +48,4 @@ if __name__ == "__main__":
 #python3 ssc_file.py 'https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml'
 #python3 ssc_file.py 'https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml'
 #python3 ssc_file.py 'https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml'
+#python3 ssc_file.py 'https://hymnal.gc.my/hymns/H514_Lord,_I_am_fondly,_earnestly/H514_Lord,_I_am_fondly,_earnestly.xml'
