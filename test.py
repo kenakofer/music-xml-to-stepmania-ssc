@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+## TODO:
+# Give right arrow more occasions
+
 import music21
 import copy
 
@@ -107,7 +110,7 @@ def getRowCol(all_rows, row, col):
 def setNoteInRows(all_rows, rows_per_beat, note, beat_length = 1):
     row = round(absOffset(note, beat_length) * rows_per_beat)
     arrow = getStepArrow(note)
-    if note.duration.quarterLength < 2:
+    if note.duration.quarterLength <= 2:
         if getRowCol(all_rows, row, arrow) == '0':
             setRowCol(all_rows, row, arrow, '1')
     else:
@@ -119,9 +122,30 @@ def setNoteInRows(all_rows, rows_per_beat, note, beat_length = 1):
 def rowsToString(all_rows, rows_per_beat):
     string = ""
     rows_per_measure = rows_per_beat * 4
+    while not len(all_rows) % rows_per_measure == 0:
+        all_rows.append(['0', '0','0', '0'])
     for i in range(0, len(all_rows), rows_per_measure):
         string += "\n".join(["".join(r) for r in all_rows[i : i + rows_per_measure]]) + ",\n"
     return string[:-2] + ";"
+
+def replaceOverlappedHoldStartsWithTaps(rows):
+    for col in range(4):
+        start_index = None
+        for i, r in enumerate(rows):
+            if start_index == None:
+                if r[col] == '2':
+                    start_index = i
+                elif r[col] == '3':
+                    r[col] == '0'
+            else:
+                if r[col] == '1':
+                    rows[start_index][col] = '1'
+                    start_index = None
+                elif r[col] == '2':
+                    rows[start_index][col] = '1'
+                    start_index = i
+                elif r[col] == '3':
+                    start_index = None
 
 def getPartRowsWithHolds(item, rows_per_beat, beat_length = 1):
     string = ""
@@ -131,6 +155,7 @@ def getPartRowsWithHolds(item, rows_per_beat, beat_length = 1):
         all_notes.extend(measure.notes)
     for note in all_notes:
         setNoteInRows(all_rows, rows_per_beat, note, beat_length = beat_length)
+    replaceOverlappedHoldStartsWithTaps(all_rows)
     return all_rows
 
 def getRowsPerBeat(item, beat_length):
@@ -164,12 +189,12 @@ def getPartBpmString(part, beat_length = 1):
 
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/S036_Jesus,_tempted_in_the_desert/S036_Jesus,_tempted_in_the_desert.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml')
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
+c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml')
 
 ## 9/8 song: uses a beat length of 1.5
-c = music21.converter.parse('https://hymnal.gc.my/hymns/H514_Lord,_I_am_fondly,_earnestly/H514_Lord,_I_am_fondly,_earnestly.xml')
+#c = music21.converter.parse('https://hymnal.gc.my/hymns/H514_Lord,_I_am_fondly,_earnestly/H514_Lord,_I_am_fondly,_earnestly.xml')
 
 parts = c.parts
 all_split = splitPart(parts[0]) + splitPart(parts[1])
