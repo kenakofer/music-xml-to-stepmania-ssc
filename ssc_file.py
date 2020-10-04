@@ -22,6 +22,8 @@ class SccFile:
         medium_notes = rowsToString(getPartRowsWithHolds(all_split[:2], rows_per_beat, beat_length = beat_length), rows_per_beat)
         medium_meter = estimateDifficultyMeter(medium_notes, parts[0])
 
+        scroll_speed = 1.0 if medium_meter < 9 else 1.75
+
         default_options = {
             'title': score.recurse().getElementsByClass('TextBox')[0].content,
             'subtitle': '',
@@ -29,7 +31,7 @@ class SccFile:
             'music': xml_input_path.split("/")[-1].split(".")[0] + ".mp3",
             'offset': '-0.1',
             'bpms': getPartBpmString(all_split[0], beat_length = beat_length),
-            'scroll_speed': '1.0',
+            'scroll_speed': scroll_speed,
             'easy_meter': easy_meter,
             'easy_notes': easy_notes,
             'medium_meter': medium_meter,
