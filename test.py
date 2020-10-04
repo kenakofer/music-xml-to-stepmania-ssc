@@ -48,7 +48,7 @@ def lcdOffset(notes, beat_length):
     offsets_in_192nds = [round(fractionalOffset(n, beat_length)*192) for n in notes]
     # Special case
     # Return the number of entries per quarter note duration
-    for d in [192, 64, 48, 32, 24, 16, 12, 8, 6, 4, 3, 2, 1]:
+    for d in [192, 96, 64, 48, 32, 24, 16, 12, 8, 6, 4, 3, 1]:
         if all(map(lambda nd: nd % d == 0, offsets_in_192nds)):
             return 192//d
     return 1
@@ -190,8 +190,8 @@ def getPartBpmString(part, beat_length = 1):
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/S036_Jesus,_tempted_in_the_desert/S036_Jesus,_tempted_in_the_desert.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml')
-c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml')
+c = music21.converter.parse('https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml')
+#c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml')
 
 ## 9/8 song: uses a beat length of 1.5
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H514_Lord,_I_am_fondly,_earnestly/H514_Lord,_I_am_fondly,_earnestly.xml')
@@ -199,7 +199,8 @@ c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_o
 parts = c.parts
 all_split = splitPart(parts[0]) + splitPart(parts[1])
 beat_length = 1
-if parts[0].recurse().getElementsByClass('TimeSignature')[0].denominator == 8:
+time_signature = parts[0].recurse().getElementsByClass('TimeSignature')[0]
+if time_signature.denominator == 8 and time_signature.numerator % 3 == 0:
     beat_length = 1.5
 rows_per_beat = getRowsPerBeat(all_split, beat_length)
 
