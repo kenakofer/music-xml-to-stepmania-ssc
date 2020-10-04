@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ## TODO:
-# Give right arrow more occasions
+# Output ssc files based on inputs
 
 import music21
 import copy
@@ -58,7 +58,7 @@ def getStepArrow(note, key = None):
         key = note.getContextByClass('Measure').getKeySignatures()[0]
     if note.isChord:
         note = note.notes[0]
-    scale_index = key.getScale().getTonic().pitchClass - note.pitch.pitchClass
+    scale_index = (note.pitch.pitchClass - key.getScale().getTonic().pitchClass) % 12
     ##      do di re ri mi fa fi so si la li ti
     return [0, 1, 2, 1, 3, 0, 1, 2, 0, 3,  2, 1][scale_index]
 
@@ -189,9 +189,9 @@ def getPartBpmString(part, beat_length = 1):
 
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/S036_Jesus,_tempted_in_the_desert/S036_Jesus,_tempted_in_the_desert.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml')
-c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
+#c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml')
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml')
+c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml')
 
 ## 9/8 song: uses a beat length of 1.5
 #c = music21.converter.parse('https://hymnal.gc.my/hymns/H514_Lord,_I_am_fondly,_earnestly/H514_Lord,_I_am_fondly,_earnestly.xml')
