@@ -1,94 +1,48 @@
-class SccFile:
-    NO_ACTION = "0"
-    TAP = "1"
-    HOLD_START = "2"
-    END = "3"
-    ROLL_START = "4"
-    MINE = "M"
-    AUTO_KEY = "K" # Newer versions
-    LIFT = "L" # Newer versions
-    FAKE = "F" # Newer versions
+from string import Template
+from test import *
+import os
+from sys import argv
 
-    def __init__(self, title):
-        self.fields = {
-            "version": "0.83",
-            "title": title,
-            "subtitle": "",
-            "artist": "",
-            "titletranslit": "",
-            "subtitletranslit": "",
-            "artisttranslit": "",
-            "genre": "",
-            "origin": "",
-            "credit": "",
-            "banner": "",
-            "background": "",
-            "previewid": "",
-            "jacket": "",
-            "cdimage": "",
-            "diskimage": "",
-            "lyricspath": "",
-            "cdtitle": "",
-            "music": "",
-            "offset": 0.0,
-            "samplestart": 0.0,
-            "samplelength": 7.0,
-            "selectable": "",
-            "bpms": {},
-            "stops": {},
-            "delays": {},
-            "warps": {},
-            "timesignatures": {0.0: "4=4"},
-            "tickcounts": {0.0: 4},
-            "combos": {0.0: 1},
-            "speeds": {0.0: "1.000=0.000=0"},
-            "scrolls": {0.0: 1},
-            "fakes": {},
-            "labels": {0.0: "Song Start"},
-            "bgchanges": {},
-            "keysounds": {},
-            "attacks": {},
-            "stops": {},
-            "notedata_by_difficulty": {
-                "Easy": {
-                    "chartname": "",
-                    "stepstype": "dance-single",
-                    "description": "",
-                    "meter": "2",
-                    "radarvalues": [],
-                    "credit": "",
-                    "notes": [[NO_ACTION * 4] * 4]
-                },
-                "Medium": {
-                    "chartname": "",
-                    "stepstype": "dance-single",
-                    "description": "",
-                    "meter": "4",
-                    "radarvalues": [],
-                    "credit": "",
-                    "notes": [[NO_ACTION * 4] * 4]
-                },
-                "Hard": {
-                    "chartname": "",
-                    "stepstype": "dance-single",
-                    "description": "",
-                    "meter": "6",
-                    "radarvalues": [],
-                    "credit": "",
-                    "notes": [[NO_ACTION * 4] * 4]
-                }
-            }
+class SccFile:
+
+    SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+    TEMPLATE_FILE_PATH = SCRIPT_DIR + "/ssc.template"
+    TEMPLATE = Template(open(TEMPLATE_FILE_PATH).read())
+
+    def exportFromXml(xml_input_path, **options):
+        score = loadXml(xml_input_path)
+        parts = score.parts
+        all_split = splitPart(parts[0]) + splitPart(parts[1])
+        beat_length = getBeatLength(all_split)
+        rows_per_beat = getRowsPerBeat(all_split, beat_length)
+
+        easy_notes = rowsToString(getPartRowsWithHolds(all_split[0], rows_per_beat, beat_length = beat_length), rows_per_beat)
+
+        medium_notes = rowsToString(getPartRowsWithHolds(all_split[:2], rows_per_beat, beat_length = beat_length), rows_per_beat)
+
+        default_options = {
+            'title': score.recurse().getElementsByClass('TextBox')[0].content,
+            'subtitle': '',
+            'artist': '',
+            'music': xml_input_path.split("/")[-1].split(".")[0] + ".mp3",
+            'offset': '-0.1',
+            'bpms': getPartBpmString(all_split[0], beat_length = beat_length),
+            'scroll_speed': '1.0',
+            'easy_meter': '2',
+            'easy_notes': easy_notes,
+            'medium_meter': '5',
+            'medium_notes': medium_notes,
         }
 
-    def exportSccString(self):
-        string = ""
-        for key in self.fields:
-            if key == "notedata_by_difficulty":
-                continue
-            string += f"#{key.upper()}:"
-            value = self.fields[key]
-            if isinstance(value, dict):
-                pass # TODO finish 
+        output_string = SccFile.TEMPLATE.substitute({**default_options, **options})
+        return output_string
 
+if __name__ == "__main__":
+    print(SccFile.exportFromXml(argv[1]))
 
-
+## Example invocations:
+#python3 ssc_file.py 'https://hymnal.gc.my/hymns/S036_Jesus,_tempted_in_the_desert/S036_Jesus,_tempted_in_the_desert.xml'
+#python3 ssc_file.py 'https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml'
+#python3 ssc_file.py 'https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml'
+#python3 ssc_file.py 'https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml'
+#python3 ssc_file.py 'https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml'

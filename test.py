@@ -126,7 +126,7 @@ def rowsToString(all_rows, rows_per_beat):
         all_rows.append(['0', '0','0', '0'])
     for i in range(0, len(all_rows), rows_per_measure):
         string += "\n".join(["".join(r) for r in all_rows[i : i + rows_per_measure]]) + ",\n"
-    return string[:-2] + ";"
+    return string[:-2]
 
 def replaceOverlappedHoldStartsWithTaps(rows):
     for col in range(4):
@@ -175,7 +175,7 @@ def getPartTimeSigString(part):
     string = ""
     for measure in part.recurse().getElementsByClass('Measure'):
         string += getMeasureTimeSigString(measure)
-    return string[:-2]+";"
+    return string[:-2]
 
 def getPartBpmString(part, beat_length = 1):
     string=""
@@ -183,29 +183,16 @@ def getPartBpmString(part, beat_length = 1):
         offset = mark.activeSite.offset + mark.offset
         string += f"{offset}={mark.getQuarterBPM() / beat_length},\n"
     if len(string) > 0:
-        return string[:-2]+";"
+        return string[:-2]
     else:
         return "0.0=120.0"
 
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/S036_Jesus,_tempted_in_the_desert/S036_Jesus,_tempted_in_the_desert.xml')
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H551_In_the_stillness_of_the_evening/H551_In_the_stillness_of_the_evening.xml')
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H118_Praise_God_from_whom/H118_Praise_God_from_whom.xml')
-c = music21.converter.parse('https://hymnal.gc.my/hymns/H513_To_go_to_heaven/H513_To_go_to_heaven.xml')
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H493_I_heard_the_voice_of_Jesus_say/H493_I_heard_the_voice_of_Jesus_say.xml')
+def getBeatLength(item):
+    time_signature = item.recurse().getElementsByClass('TimeSignature')[0]
+    if time_signature.denominator == 8 and time_signature.numerator % 3 == 0:
+        return 1.5
+    return 1
 
-## 9/8 song: uses a beat length of 1.5
-#c = music21.converter.parse('https://hymnal.gc.my/hymns/H514_Lord,_I_am_fondly,_earnestly/H514_Lord,_I_am_fondly,_earnestly.xml')
 
-parts = c.parts
-all_split = splitPart(parts[0]) + splitPart(parts[1])
-beat_length = 1
-time_signature = parts[0].recurse().getElementsByClass('TimeSignature')[0]
-if time_signature.denominator == 8 and time_signature.numerator % 3 == 0:
-    beat_length = 1.5
-rows_per_beat = getRowsPerBeat(all_split, beat_length)
-
-#step0 = rowsToString(getPartRowsWithHolds(all_split[0], rows_per_beat), rows_per_beat)
-#step1 = rowsToString(getPartRowsWithHolds(all_split[1], rows_per_beat), rows_per_beat)
-joined = rowsToString(getPartRowsWithHolds(all_split[:2], rows_per_beat, beat_length = beat_length), rows_per_beat)
-print(joined)
-print(getPartBpmString(all_split[0], beat_length = beat_length))
+def loadXml(path):
+    return music21.converter.parse(path)
